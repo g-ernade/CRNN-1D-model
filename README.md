@@ -1,5 +1,5 @@
 # CRNN-1D model
- relevant code for CRNN-1D model
+ relevant code for CRNN-1D model that was designed for detecting malicious Domain Generation Algorithm (DGA) domains.
 
 ### data
 
