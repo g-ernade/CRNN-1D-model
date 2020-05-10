@@ -7,9 +7,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sklearn
 from sklearn.metrics import roc_curve, auc
-from tensorflow.python.keras.callbacks import ModelCheckpoint
+from tensorflow.python.keras.callbacks import ModelCheckpoint,TensorBoard
 import os
-
+import tensorflow as tf
+from datetime import datetime
 
 def dns_encryptor(dic, dns, max_len=75):  # 75 equals max length
     '''
@@ -56,10 +57,17 @@ def train_validation(model_func, data, dic_for_encrypt: dict, epochs: int, \
     max_features = len(dic_for_encrypt) + 1  # Extra 1 for padding
     dns_encrypted = dns_encryptor(dic_for_encrypt, dns, max_len)  # Encrypting dns
     model = model_func(max_features, max_len, use_gap=True)
-    #TODO: add tensorboard callback
+
     cpt_file_path=os.path.join(model_container_path,model_name+'_'+time_str+'{epoch:02d}-{val_loss:.2f}.hdf5')
-    checkpoint=ModelCheckpoint(cpt_file_path,monitor='val_acc',verbose=1)#callback
-    cbk_ls=[checkpoint] #callback list
+    checkpoint=ModelCheckpoint(cpt_file_path,monitor='val_acc',verbose=1)#callback0
+
+    TensorBoardcallback = tf.keras.callbacks.TensorBoard(log_dir='./logs',
+            histogram_freq=1, batch_size=32,
+            write_graph=True, write_grads=False, write_images=True,
+            embeddings_freq=0, embeddings_layer_names=None,
+            embeddings_metadata=None, embeddings_data=None, update_freq=500)
+
+    cbk_ls=[checkpoint,TensorBoardcallback] #callback list
     dns_train=np.array(dns_encrypted)
     label_train=np.array(label)
 
@@ -70,23 +78,7 @@ def train_validation(model_func, data, dic_for_encrypt: dict, epochs: int, \
     end_time=time.perf_counter()
     train_time=end_time-start_time
     print('>>>training time is{}'.format(train_time))
-    print('>>>collecting training data')
-    acc_per_epoch = np.array(history.history['loss'])
-    loss_per_epoch = np.array(history.history['acc'])
-    print(history.history)
-    val_acc = np.array(history.history['val_acc'])
-    val_loss = np.array(history.history['val_loss'])
-    print('>>>plotting training results')
-    fig = plt.figure(figsize=(18, 9), dpi=100)
-    plt.plot(np.arange(acc_per_epoch.shape[0]), acc_per_epoch)
-    plt.plot(np.arange(loss_per_epoch.shape[0]), loss_per_epoch)
-    plt.plot(np.arange(val_acc.shape[0]), val_acc)
-    plt.plot(np.arange(val_loss.shape[0]), val_loss)
-    plt.legend(['train_acc', 'train_loss', 'val_acc', 'val_loss'])
 
-    pic_path=os.path.join(model_container_path,model_name + time_str + '.png')
-    fig.savefig(pic_path)
-    print('>>>picture plotted and saved')
 
 
 
