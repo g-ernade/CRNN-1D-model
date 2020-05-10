@@ -28,3 +28,7 @@ Trained_file is a folder that contains all the hdf5 model file we trained on the
 ### train.py
 
 `train.py` is a a python script we used for training different models.
+
+### dic_test.pkl
+
+`dic_test.pkl` is a packed binary file for a python dict that is used for token transition for all the models. This file is compressed using pickle module in python.
